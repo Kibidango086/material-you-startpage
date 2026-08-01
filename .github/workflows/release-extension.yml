@@ -1,0 +1,83 @@
+name: Release Extension
+
+on:
+  push:
+    branches: [extension]
+    paths: ['entrypoints/**', 'wxt.config.ts', 'package.json', 'bun.lock', '.github/workflows/release-extension.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Install deps
+        run: bun install --frozen-lockfile
+
+      - name: Build & zip Chrome / Firefox
+        run: |
+          bun run zip:chrome
+          bun run zip:firefox
+
+      # Firefox 正式 .xpi（Mozilla 签名）。需要仓库 Secrets：
+      # AMO_JWT_ISSUER / AMO_JWT_SECRET（https://addons.mozilla.org/developers/addon/api/key/）
+      - name: Sign Firefox (.xpi)
+        if: env.AMO_JWT_ISSUER != '' && env.AMO_JWT_SECRET != ''
+        env:
+          AMO_JWT_ISSUER: ${{ secrets.AMO_JWT_ISSUER }}
+          AMO_JWT_SECRET: ${{ secrets.AMO_JWT_SECRET }}
+        run: |
+          bun add -d web-ext
+          bunx web-ext sign \
+            --source-dir .output/firefox-mv2 \
+            --artifacts-dir .output \
+            --api-key "$AMO_JWT_ISSUER" \
+            --api-secret "$AMO_JWT_SECRET"
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: my-startpage-extension
+          path: |
+            .output/*.zip
+            .output/*.xpi
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: extension-v1.0.0
+          name: My Startpage 浏览器扩展 v1.0.0
+          files: |
+            .output/*.zip
+            .output/*.xpi
+          body: |
+            ## My Startpage 浏览器扩展
+
+            替换新标签页为 [mystartup.kibidango.top](https://mystartup.kibidango.top/)。
+
+            ### 安装
+            - **Chrome / Edge**：下载 `*-chrome.zip` → 解压 → `chrome://extensions` 开启开发者模式 → 「加载已解压的扩展程序」。
+            - **Firefox**：下载 `*.xpi`（Mozilla 签名版）→ 直接用 Firefox 打开安装。
+              - 若暂无签名版，可下载 `*-firefox.zip` → `about:debugging#/runtime/this-firefox` → 「临时载入附加组件」。
+          allowUpdates: true
+          replacesArtifacts: true
+
+      # 可选：配置商店密钥后自动上架 Chrome Web Store / Firefox AMO
+      - name: Submit to stores (optional)
+        if: env.CWS_CLIENT_ID != '' || env.AMO_JWT_ISSUER != ''
+        working-directory: .
+        env:
+          CWS_CLIENT_ID: ${{ secrets.CWS_CLIENT_ID }}
+          CWS_CLIENT_SECRET: ${{ secrets.CWS_CLIENT_SECRET }}
+          CWS_REFRESH_TOKEN: ${{ secrets.CWS_REFRESH_TOKEN }}
+          AMO_JWT_ISSUER: ${{ secrets.AMO_JWT_ISSUER }}
+          AMO_JWT_SECRET: ${{ secrets.AMO_JWT_SECRET }}
+        run: bun run wxt submit

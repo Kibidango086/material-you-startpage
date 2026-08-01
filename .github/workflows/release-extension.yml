@@ -51,11 +51,15 @@ jobs:
             .output/*.zip
             .output/*.xpi
 
+      - name: Get version
+        id: version
+        run: echo "VERSION=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: extension-v1.0.0
-          name: My Startpage 浏览器扩展 v1.0.0
+          tag_name: extension-v${{ steps.version.outputs.VERSION }}
+          name: My Startpage 浏览器扩展 v${{ steps.version.outputs.VERSION }}
           files: |
             .output/*.zip
             .output/*.xpi

@@ -5,7 +5,6 @@ export default defineConfig({
   manifest: ({ browser }) => ({
     name: 'My Startpage',
     description: '替换新标签页为 My Startpage（mystartup.kibidango.top）',
-    version: '1.0.0',
     // 仅覆盖新标签页，无需任何额外权限
     permissions: [],
     // 扩展图标（与网站 logo 一致的山+太阳，主题色系）

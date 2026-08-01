@@ -215,6 +215,15 @@ function updateFavicon(seedColor: string): void {
     document.head.appendChild(link);
   }
   link.href = href;
+
+  // 被浏览器扩展以 iframe 嵌入时（新标签页场景），把当前 favicon 广播给
+  // 外层容器，让扩展的标签页图标与本页实时同步（含主题色变化）。
+  if (window.parent !== window) {
+    window.parent.postMessage(
+      { source: 'my-startpage', favicon: href },
+      '*',
+    );
+  }
 }
 
 /** 监听 <html> 上的主题属性变化（深浅色 / 配色方案），节流刷新 favicon */

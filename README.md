@@ -14,6 +14,9 @@
   <a href="https://mystartup.kibidango.top/">
     <img src="https://img.shields.io/badge/Demo-mystartup.kibidango.top-6750A4?style=for-the-badge&logo=data:image/svg%2Bxml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48Y2lyY2xlIGN4PSI2NiIgY3k9IjMyIiByPSI5IiBmaWxsPSIlMjNmZmYiLz48cGF0aCBkPSJNMTIgNzggUTI4IDQwIDUwIDYwIFE2MiA3MCA3NiA1NCBRODQgNDYgODggNTYgTDg4IDc4IFoiIGZpbGw9IiUyM2ZmZiIgb3BhY2l0eT0iMC45Ii8+PHBhdGggZD0iTTMwIDc4IFE0NCA1NCA1OCA2NiBRNjQgNzAgNzQgNzggWiIgZmlsbD0iJTIzZmZmIiBvcGFjaXR5PSIwLjg1Ii8+PC9zdmc+" alt="Demo" />
   </a>
+  <a href="https://github.com/Kibidango086/material-you-startpage/releases/latest">
+    <img src="https://img.shields.io/badge/Browser%20Extension-Download-6750A4?style=for-the-badge&logo=firefoxbrowser&logoColor=white" alt="Browser Extension" />
+  </a>
   <a href="https://github.com/Kibidango086/material-you-startpage">
     <img src="https://img.shields.io/badge/GitHub-Kibidango086%2Fmaterial--you--startpage-181717?style=for-the-badge&logo=github&logoColor=white" alt="GitHub" />
   </a>

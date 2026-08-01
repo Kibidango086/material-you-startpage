@@ -40,7 +40,8 @@ jobs:
             --source-dir .output/firefox-mv2 \
             --artifacts-dir .output \
             --api-key "$AMO_JWT_ISSUER" \
-            --api-secret "$AMO_JWT_SECRET"
+            --api-secret "$AMO_JWT_SECRET" \
+            --channel unlisted
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4

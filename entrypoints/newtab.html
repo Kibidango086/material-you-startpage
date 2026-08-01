@@ -22,6 +22,30 @@
       border: 0;
     }
   </style>
+  <script type="module">
+    // 接收站点广播的动态 favicon（跟随网页实际图标与主题色），
+    // 实时更新本页（标签页）图标，保持与网页完全一致。
+    window.addEventListener('message', (event) => {
+      const data = event.data;
+      if (
+        data &&
+        typeof data === 'object' &&
+        data.source === 'my-startpage' &&
+        typeof data.favicon === 'string' &&
+        data.favicon.startsWith('data:image/svg+xml')
+      ) {
+        const link =
+          document.querySelector('link[rel="icon"]') ??
+          (() => {
+            const l = document.createElement('link');
+            l.rel = 'icon';
+            document.head.appendChild(l);
+            return l;
+          })();
+        link.href = data.favicon;
+      }
+    });
+  </script>
 </head>
 <body>
   <!-- 全屏嵌入站点：地址栏保持干净，搜索/设置/壁纸等全部功能照常工作 -->

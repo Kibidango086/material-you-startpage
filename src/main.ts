@@ -504,6 +504,8 @@ async function bootstrap(): Promise<void> {
   applyClockStyle(clock);
   watchFavicon();
   const omnibox = mountOmnibox();
+  // 起始页：加载后焦点落在搜索框（新标签页场景下地址栏不全选不抢焦点）
+  requestAnimationFrame(() => omnibox.focus());
   const links = mountLinks();
 
   let lastLang = initial.appearance.lang;

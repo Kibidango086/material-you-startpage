@@ -209,6 +209,15 @@ export class Omnibox {
 
   // ─────────────── 公共 API（调试 / 自动化验证） ───────────────
 
+  /**
+   * 聚焦搜索框。起始页场景下（尤其作为浏览器新标签页时）焦点应落在
+   * 页面搜索框上：地址栏虽然仍显示 URL，但不会全选高亮抢注意力，
+   * 直接打字即可搜索；需要地址栏历史/建议时按 Ctrl+L 随时唤出。
+   */
+  focus(): void {
+    this.field.focus();
+  }
+
   /** 设置输入值并刷新建议（调试 / 自动化钩子） */
   setValue(value: string): void {
     this.field.value = value;

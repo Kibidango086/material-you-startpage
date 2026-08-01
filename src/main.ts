@@ -178,10 +178,29 @@ function applyThemeAndColorScheme(settings: Settings): void {
   updateFavicon(settings.appearance.seedColor);
 }
 
-/** 用种子色生成动态 favicon（SVG data URI，圆角 M 徽标） */
+/**
+ * 生成动态 favicon（SVG data URI，Material You 山 + 太阳徽标）。
+ * 颜色直接读 mdui 的 CSS 变量（primary-container 背景 / primary 图案），
+ * 因此深浅色模式、跟随系统模式下都会自动跟随主题。
+ * seedColor 仅作为 CSS 变量读取失败时的兜底色。
+ */
 function updateFavicon(seedColor: string): void {
-  const color = /^#[0-9a-fA-F]{6}$/.test(seedColor) ? seedColor : '#6750a4';
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="24" fill="${color}"/><text x="50" y="72" font-family="Roboto,Arial,sans-serif" font-size="58" font-weight="700" fill="#ffffff" text-anchor="middle">M</text></svg>`;
+  const fallback = /^#[0-9a-fA-F]{6}$/.test(seedColor) ? seedColor : '#6750a4';
+  const cs = getComputedStyle(document.documentElement);
+  const read = (name: string, fb: string): string => {
+    const v = cs.getPropertyValue(name).trim();
+    return v !== '' ? `rgb(${v})` : fb;
+  };
+  const container = read('--mdui-color-primary-container', fallback);
+  const primary = read('--mdui-color-primary', '#ffffff');
+  const onContainer = read('--mdui-color-on-primary-container', '#ffffff');
+  const svg =
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">` +
+    `<rect width="100" height="100" rx="22" fill="${container}"/>` +
+    `<circle cx="66" cy="32" r="8" fill="${primary}"/>` +
+    `<path d="M12 78 Q28 40 50 60 Q62 70 76 54 Q84 46 88 56 L88 78 Z" fill="${primary}" opacity="0.9"/>` +
+    `<path d="M30 78 Q44 54 58 66 Q64 70 74 78 Z" fill="${onContainer}" opacity="0.85"/>` +
+    `</svg>`;
   const href = `data:image/svg+xml,${encodeURIComponent(svg)}`;
   let link = document.querySelector<HTMLLinkElement>('link[rel="icon"]');
   if (link === null) {
@@ -190,6 +209,27 @@ function updateFavicon(seedColor: string): void {
     document.head.appendChild(link);
   }
   link.href = href;
+}
+
+/** 监听 <html> 上的主题属性变化（深浅色 / 配色方案），节流刷新 favicon */
+let faviconTimer: number | null = null;
+function watchFavicon(): void {
+  const flush = (): void => {
+    if (faviconTimer !== null) window.clearTimeout(faviconTimer);
+    faviconTimer = window.setTimeout(() => {
+      faviconTimer = null;
+      updateFavicon('#6750a4');
+    }, 120);
+  };
+  new MutationObserver(flush).observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ['style', 'class'],
+  });
+  if (window.matchMedia !== undefined) {
+    window
+      .matchMedia('(prefers-color-scheme: dark)')
+      .addEventListener('change', flush);
+  }
 }
 
 /** 从壁纸提取主题色（防抖），开关开启时自动执行 */
@@ -426,6 +466,7 @@ async function bootstrap(): Promise<void> {
   wireSettingsButton(settingsDialog);
   const clock = mountClock();
   applyClockStyle(clock);
+  watchFavicon();
   const omnibox = mountOmnibox();
   const links = mountLinks();
 

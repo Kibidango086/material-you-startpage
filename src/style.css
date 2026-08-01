@@ -42,6 +42,10 @@ body {
   margin: 0;
   padding: 0;
   min-height: 100vh;
+  /* 移动端：禁止整页下拉刷新 / 回弹（起始页场景误触刷新很恼人） */
+  overscroll-behavior: none;
+  /* 移动端：去掉点击瞬间的系统高亮，统一交给组件 active 态 */
+  -webkit-tap-highlight-color: transparent;
 }
 
 body {
@@ -72,8 +76,10 @@ a {
   text-decoration: none;
 }
 
+@media (hover: hover) {
 a:hover {
   text-decoration: underline;
+}
 }
 
 #app {
@@ -589,9 +595,11 @@ a:hover {
     color 200ms ease;
 }
 
+@media (hover: hover) {
 .says__quote-btn:hover {
   background: color-mix(in srgb, var(--mdui-color-secondary-container) 45%, transparent);
   color: var(--mdui-color-on-surface);
+}
 }
 
 .says__quote-btn:active {
@@ -631,8 +639,10 @@ a:hover {
   transition: color 200ms ease;
 }
 
+@media (hover: hover) {
 .says__refresh-btn:hover {
   color: rgb(var(--mdui-color-primary));
+}
 }
 
 /* ---------- 页脚 fork 声明 ---------- */
@@ -850,8 +860,10 @@ a:hover {
     box-shadow 0.15s ease;
 }
 
+@media (hover: hover) {
 .seed-swatch:hover {
   transform: scale(1.12);
+}
 }
 
 .seed-swatch.is-active {
@@ -1142,9 +1154,87 @@ a:hover {
 /* ---------- 响应式：<600px 移动端（字号缩放 + 全宽容器） ---------- */
 @media (max-width: 599.98px) {
   :root {
-    --font-clock: clamp(2.75rem, 16vw, 4.25rem);
-    --font-date: 1rem;
-      --font-logo: 1.25rem;
+    /* 移动端整体字号收窄一档（搜索框除外：iOS 聚焦防缩放需 ≥16px） */
+    --font-clock: clamp(2.25rem, 13vw, 3.5rem);
+    --font-date: 0.875rem;
+    --font-logo: 1.0625rem;
+    --font-note: 0.75rem;
+  }
+
+  /* 各区块字号随之收紧 */
+  .hero__logo {
+    font-size: 1.5rem;
+  }
+
+  .links__title {
+    font-size: 0.875rem;
+  }
+
+  .says__quote {
+    font-size: 0.9375rem;
+  }
+
+  .says__source {
+    font-size: 0.75rem;
+  }
+
+  .app-footer__text {
+    font-size: 0.75rem;
+  }
+
+  /* 设置面板：行改纵向布局（label 在上、控件在下全宽）。
+     横排时右侧控件挤压左侧 label，加上系统字体缩放（Android 常设
+     1.1-1.3x）后中文会逐字换行成"竖排"；纵向布局彻底根治。 */
+  .settings-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-sm);
+  }
+
+  .settings-row__label {
+    flex: none;
+    min-width: 0;
+  }
+
+  .settings-row__title {
+    font-size: 0.875rem;
+  }
+
+  .settings-row__hint,
+  .settings-section__hint {
+    font-size: 0.75rem;
+  }
+
+  .settings-section__title {
+    font-size: 0.8125rem;
+  }
+
+  mdui-text-field::part(label),
+  mdui-select::part(label) {
+    font-size: 0.875rem;
+  }
+
+  /* 控件全宽：分段按钮 / 下拉 / 输入框占满整行，避免内部文字被挤压 */
+  .settings-row > mdui-segmented-button-group,
+  .settings-row > mdui-select,
+  .settings-row > mdui-text-field {
+    width: 100%;
+  }
+
+  .settings-row > mdui-segmented-button-group {
+    min-width: 0;
+  }
+
+  .settings-row > mdui-segmented-button-group mdui-segmented-button {
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* 开关保持自然宽度靠左 */
+  .settings-row > mdui-switch {
+    align-self: flex-start;
   }
 
   .app-main {
@@ -1514,8 +1604,10 @@ a:hover {
   transition: transform 0.15s ease;
 }
 
+@media (hover: hover) {
 .bg-swatch:hover {
   transform: scale(1.12);
+}
 }
 
 .bg-swatch.is-active {
@@ -1619,5 +1711,35 @@ a:hover {
 
   .bg-slider-row__label {
     width: 5.5em;
+  }
+}
+
+/* ---------- 移动端触控与安全区适配 ---------- */
+/* iPhone 刘海 / 底部横条：内容避开安全区（配合 viewport-fit=cover） */
+@supports (padding: env(safe-area-inset-bottom)) {
+  body {
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-top: env(safe-area-inset-top);
+  }
+}
+
+/* 触控设备：链接卡片 / 按钮按压反馈（配合 tap-highlight 移除） */
+@media (hover: none) {
+  .link-card:active,
+  .says__quote-btn:active,
+  .says__refresh-btn:active,
+  .seed-swatch:active,
+  .bg-swatch:active {
+    opacity: 0.7;
+  }
+}
+
+/* 移动端：确保输入框字号 ≥16px，避免 iOS 聚焦时自动缩放页面 */
+@media (max-width: 599.98px) {
+  .omnibox__field::part(input),
+  mdui-text-field input {
+    font-size: 16px !important;
   }
 }

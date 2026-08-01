@@ -64,6 +64,8 @@ import {
   validateEngineUrl,
 } from '../services/searchEngines';
 import { get, set, subscribe } from '../storage/store';
+import { loadImageForPixels } from '../services/extractColor';
+import { resolveImageSource } from '../services/imageStore';
 import type { LinkGroup, LinkItem, SearchEngine } from '../storage/types';
 import { validateLinkUrl } from './links';
 import type { BackgroundManager } from './background';
@@ -569,9 +571,18 @@ export class SettingsDialog {
       return;
     }
     try {
-      const img = new Image();
-      img.src = src;
-      await img.decode();
+      // 与自动取色同路径：IndexedDB 标记 → objectURL；跨域 URL → CORS fetch → blob，
+      // 确保 canvas 可读像素（直接 <img src> 跨域图会被污染）。
+      const resolved = await resolveImageSource(src);
+      if (resolved === '') {
+        snackbar({ message: t('seed.extractFailed'), autoCloseDelay: 3500 });
+        return;
+      }
+      const img = await loadImageForPixels(resolved);
+      if (img === null) {
+        snackbar({ message: t('seed.extractFailed'), autoCloseDelay: 3500 });
+        return;
+      }
       const color = await getColorFromImage(img);
       setColorScheme(color);
       set({ appearance: { seedColor: color } });
@@ -1422,23 +1433,21 @@ function template(): string {
           <div class="bg-field-row">
             <mdui-text-field
               id="bg-bing-mirror"
-              label="自定义镜像地址（可选）"
-              placeholder="https://api.dujin.org/bing/1920.php"
+              label="${t('bg.bingMirrorLabel')}"
+              placeholder="${t('bg.bingMirrorPlaceholder')}"
               clearable
             ></mdui-text-field>
           </div>
           <div class="bg-field-row">
             <mdui-text-field
               id="bg-bing-manual"
-              label="接口不可用时手动输入图片 URL"
+              label="${t('bg.bingManualLabel')}"
               placeholder="https://example.com/wallpaper.jpg"
               clearable
             ></mdui-text-field>
             <mdui-button id="bg-bing-manual-apply" variant="tonal">${t('bg.apply')}</mdui-button>
           </div>
-          <p class="settings-section__hint">
-            优先请求 cn.bing.com 当日壁纸 API，失败时依次回退备选镜像，最终失败可手动指定图片 URL。
-          </p>
+          <p class="settings-section__hint">${t('bg.bingHint')}</p>
         </section>
 
         <section class="settings-section__block">

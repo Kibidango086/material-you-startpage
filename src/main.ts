@@ -80,6 +80,7 @@ import {
   resolveImageSource,
   saveBackgroundImage,
 } from './services/imageStore';
+import { loadImageForPixels } from './services/extractColor';
 import type { SearchEngine, Settings } from './storage/types';
 import { normalizeUrl } from './utils/url';
 
@@ -256,6 +257,8 @@ async function migrateLegacyBackgroundImage(settings: Settings): Promise<void> {
 
 /** 从壁纸提取主题色（防抖），开关开启时自动执行 */
 let extractSeedTimer: number | null = null;
+/** 取色防重入锁：上一轮未结束时跳过本轮，避免并发取色拖慢页面 */
+let extractSeedBusy = false;
 function applyExtractSeedFromWallpaper(settings: Settings): void {
   if (!settings.background.extractSeedFromWallpaper) return;
   const bg = settings.background;
@@ -271,18 +274,24 @@ function applyExtractSeedFromWallpaper(settings: Settings): void {
   if (extractSeedTimer !== null) window.clearTimeout(extractSeedTimer);
   extractSeedTimer = window.setTimeout(() => {
     extractSeedTimer = null;
+    if (extractSeedBusy) return; // 上一轮未完成：跳过（下个设置变化会重试）
+    extractSeedBusy = true;
     void (async () => {
       try {
         const resolved = await resolveImageSource(src);
         if (resolved === '') return;
-        const img = new Image();
-        img.src = resolved;
-        await img.decode();
+        const img = await loadImageForPixels(resolved);
+        if (img === null) return; // 不支持 CORS 的跨域图：静默降级
         const color = await getColorFromImage(img);
-        setColorScheme(color);
-        set({ appearance: { seedColor: color } });
+        // 提取结果与当前配色相同 → 不再 set（避免触发订阅循环）
+        if (color.toLowerCase() !== get().appearance.seedColor.toLowerCase()) {
+          setColorScheme(color);
+          set({ appearance: { seedColor: color } });
+        }
       } catch {
-        // 跨域图片无法读取像素时静默降级，手动触发时另有 snackbar 提示
+        // 解析失败时静默降级，保持当前配色
+      } finally {
+        extractSeedBusy = false;
       }
     })();
   }, 400);

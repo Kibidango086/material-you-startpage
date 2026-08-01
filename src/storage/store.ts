@@ -75,6 +75,23 @@ export function deepMerge<T extends Record<string, unknown>>(
   return result as T;
 }
 
+/** 递归值比较（纯对象 / 数组 / 基本类型） */
+function deepEqual(a: unknown, b: unknown): boolean {
+  if (a === b) return true;
+  if (Array.isArray(a) && Array.isArray(b)) {
+    return a.length === b.length && a.every((v, i) => deepEqual(v, b[i]));
+  }
+  if (isPlainObject(a) && isPlainObject(b)) {
+    const keysA = Object.keys(a);
+    const keysB = Object.keys(b);
+    return (
+      keysA.length === keysB.length &&
+      keysA.every((k) => deepEqual(a[k], b[k]))
+    );
+  }
+  return false;
+}
+
 /** 从 localStorage 读取原始持久化数据（解析失败返回 null） */
 function readRaw(): PersistedSettings | null {
   const raw = localStorage.getItem(PERSIST_KEY);
@@ -147,10 +164,15 @@ export function get(): Settings {
  */
 export function set(patch: unknown): Settings {
   if (!isPlainObject(patch)) return get();
-  current = deepMerge(
+  const merged = deepMerge(
     current as unknown as Record<string, unknown>,
     patch,
   ) as unknown as Settings;
+  // 值比较：patch 未产生实际变化时不持久化、不通知订阅者。
+  // 关键作用：取色回写 seedColor 若与当前一致，不会触发订阅 → 不会
+  // 形成「取色 → set → 订阅 → 取色」的无限循环（页面卡顿根因）。
+  if (deepEqual(merged, current)) return get();
+  current = merged;
   persist();
   emit();
   return get();

@@ -596,6 +596,30 @@ const dict: Dict = {
     en: 'Fetch today wallpaper',
     ja: '今日の壁紙を取得',
   },
+  'bg.bingMirrorLabel': {
+    'zh-CN': '自定义镜像地址（可选）',
+    'zh-TW': '自訂鏡像位址（選填）',
+    en: 'Custom mirror URL (optional)',
+    ja: 'カスタムミラーURL（任意）',
+  },
+  'bg.bingMirrorPlaceholder': {
+    'zh-CN': '留空使用内置代理，如 https://example.com/bing',
+    'zh-TW': '留空使用內建代理，如 https://example.com/bing',
+    en: 'Empty = built-in proxy, e.g. https://example.com/bing',
+    ja: '空欄で内蔵プロキシ、例 https://example.com/bing',
+  },
+  'bg.bingManualLabel': {
+    'zh-CN': '接口不可用时手动输入图片 URL',
+    'zh-TW': '介面不可用時手動輸入圖片 URL',
+    en: 'Manually set image URL when APIs fail',
+    ja: 'API が使えない場合に画像 URL を手動指定',
+  },
+  'bg.bingHint': {
+    'zh-CN': '默认经内置同源代理（Vercel 部署自动启用）获取 cn.bing.com 当日壁纸，失败时依次回退备选镜像，仍失败可手动指定图片 URL。',
+    'zh-TW': '預設經內建同源代理（Vercel 部署自動啟用）取得 cn.bing.com 當日桌布，失敗時依序回退備選鏡像，仍失敗可手動指定圖片 URL。',
+    en: 'Uses the built-in same-origin proxy (auto-enabled on Vercel) for cn.bing.com wallpaper, then falls back to mirrors, then manual URL.',
+    ja: '内蔵プロキシ（Vercel で自動有効）で cn.bing.com の当日壁紙を取得し、失敗時はミラーにフォールバック、最後に手動 URL を指定できます。',
+  },
   'bg.mask': {
     'zh-CN': '蒙版',
     'zh-TW': '遮罩',

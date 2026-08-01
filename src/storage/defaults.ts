@@ -48,6 +48,7 @@ export const DEFAULT_SETTINGS: Settings = {
     video: '',
     bingMirror: 'https://api.dujin.org/bing/1920.php',
     bingUrl: '',
+    bingDate: '',
     overlayOpacity: 0,
     blur: 0,
     extractSeedFromWallpaper: false,

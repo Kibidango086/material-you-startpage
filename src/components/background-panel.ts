@@ -338,7 +338,9 @@ export class BackgroundPanel {
     }
     const normalized = normalizeUrl(raw) ?? raw;
     bingManualField.value = normalized;
-    set({ background: { mode: 'bing', bingUrl: normalized } });
+    // 手动指定的图标记为"今日已更新"，当天不会被每日自动刷新覆盖
+    const today = new Date().toISOString().slice(0, 10);
+    set({ background: { mode: 'bing', bingUrl: normalized, bingDate: today } });
     this.setBingStatus(bingStatus, t('bg.appliedWallpaper'), 'ok');
     snackbar({ message: t('bg.appliedWallpaper'), autoCloseDelay: 2000 });
   }

@@ -30,6 +30,14 @@ import { isIdbSource, resolveImageSource } from '../services/imageStore';
 /** 背景模式 */
 export type BackgroundMode = BackgroundSettings['mode'];
 
+/** 本地日期 YYYY-MM-DD（每日壁纸是否已更新的判断依据） */
+function localToday(): string {
+  const d = new Date();
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  return `${d.getFullYear()}-${mm}-${dd}`;
+}
+
 /** 对外暴露的编程式 API（调试 / 自动化验证钩子） */
 export interface BackgroundApi {
   get: () => BackgroundSettings;
@@ -177,9 +185,12 @@ export class BackgroundManager {
       this.stopVideo();
     }
 
-    // 必应模式且无缓存 URL：自动拉取当日壁纸
-    if (bg.mode === 'bing' && bg.bingUrl === '') {
-      void this.refreshBing();
+    // 必应模式：每天首次打开时自动拉取当日壁纸
+    // （无缓存 URL 或缓存日期不是今天 → 刷新；失败静默，保留旧图）
+    if (bg.mode === 'bing') {
+      if (bg.bingUrl === '' || bg.bingDate !== localToday()) {
+        void this.refreshBing();
+      }
     }
   }
 
@@ -227,7 +238,7 @@ export class BackgroundManager {
         mirrors,
         verifyImage: verifyImageLoadable,
       });
-      set({ background: { mode: 'bing', bingUrl: url } });
+      set({ background: { mode: 'bing', bingUrl: url, bingDate: localToday() } });
       return true;
     } catch (error) {
       const message =

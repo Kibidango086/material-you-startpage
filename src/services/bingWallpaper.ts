@@ -66,6 +66,10 @@ export interface FetchBingOptions {
  */
 export function buildBingMirrors(bingMirror?: string): BingMirror[] {
   const mirrors: BingMirror[] = [
+    // 同源代理（dev 由 Vite proxy / Vercel 由 serverless 提供）：
+    // 浏览器必通且不受 CORS 限制，解析出的图片 URL 落在 cn.bing.com
+    // （带 Access-Control-Allow-Origin: *），因此壁纸取色也能成功。
+    { kind: 'json', url: '/api/bing', origin: 'https://cn.bing.com' },
     { kind: 'json', url: BING_CN_ENDPOINT, origin: 'https://cn.bing.com' },
     {
       kind: 'json',

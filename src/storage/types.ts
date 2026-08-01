@@ -54,6 +54,8 @@ export interface BackgroundSettings {
   bingMirror: string;
   /** 最近一次成功获取的必应壁纸图片 URL（缓存，刷新后无需重新请求） */
   bingUrl: string;
+  /** 最近一次成功获取必应壁纸的本地日期（YYYY-MM-DD，每日首次打开自动更新判断依据） */
+  bingDate: string;
   /** 蒙版不透明度 0-1 */
   overlayOpacity: number;
   /** 背景模糊 0-30px */

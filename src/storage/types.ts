@@ -44,7 +44,7 @@ export interface BackgroundSettings {
   mode: 'color' | 'image' | 'url' | 'video' | 'bing';
   /** 纯色背景值 */
   color: string;
-  /** 上传图片（base64） */
+  /** 上传图片：idb:// 标记（原图存 IndexedDB，见 services/imageStore） */
   image: string;
   /** 图片 URL */
   url: string;

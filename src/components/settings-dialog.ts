@@ -1607,6 +1607,9 @@ function template(): string {
       <section class="settings-section about">
         <p class="about__declaration"><strong>My Startpage</strong> — ${t('about.tagline')} <strong>Kibidango086</strong></p>
         <p class="about__link">
+          ${t('about.githubRepo')} <a href="https://github.com/Kibidango086/material-you-startpage" target="_blank" rel="noopener noreferrer">Kibidango086/material-you-startpage</a>
+        </p>
+        <p class="about__link">
           ${t('about.inspiredBy')} <a href="https://github.com/quik-page/quik2" target="_blank" rel="noopener noreferrer">QUIK 2</a>（GPL-3.0）
         </p>
         <h3 class="about__title">${t('about.techStack')}</h3>

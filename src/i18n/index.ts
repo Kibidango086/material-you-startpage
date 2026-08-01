@@ -874,6 +874,12 @@ const dict: Dict = {
     en: 'A personal Material You startpage by',
     ja: '個人向け Material You スタートページ、作者',
   },
+  'about.githubRepo': {
+    'zh-CN': '项目主页',
+    'zh-TW': '專案首頁',
+    en: 'Repository',
+    ja: 'リポジトリ',
+  },
   'about.inspiredBy': {
     'zh-CN': '设计灵感来自',
     'zh-TW': '設計靈感來自',

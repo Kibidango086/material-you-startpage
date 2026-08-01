@@ -88,13 +88,19 @@ function readRaw(): PersistedSettings | null {
   }
 }
 
-/** 持久化当前快照到 localStorage */
+/** 持久化当前快照到 localStorage（配额超限时降级为仅内存，避免抛异常中断） */
 function persist(): void {
   const payload: PersistedSettings = {
     schemaVersion: SCHEMA_VERSION,
     settings: current,
   };
-  localStorage.setItem(PERSIST_KEY, JSON.stringify(payload));
+  try {
+    localStorage.setItem(PERSIST_KEY, JSON.stringify(payload));
+  } catch (error) {
+    // localStorage 配额（约 5MB）超限：本次修改只保留在内存中，
+    // 刷新后回退到上次成功持久化的快照。
+    console.warn('[store] localStorage 配额不足，设置未持久化:', error);
+  }
 }
 
 /** 通知所有订阅者（快照隔离，避免外部修改污染内部状态） */

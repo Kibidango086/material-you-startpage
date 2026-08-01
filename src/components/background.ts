@@ -25,6 +25,7 @@ import {
 } from '../services/bingWallpaper';
 import { get, set, subscribe } from '../storage/store';
 import type { BackgroundSettings } from '../storage/types';
+import { isIdbSource, resolveImageSource } from '../services/imageStore';
 
 /** 背景模式 */
 export type BackgroundMode = BackgroundSettings['mode'];
@@ -64,6 +65,8 @@ export class BackgroundManager {
   private readonly overlayEl: HTMLElement;
   private readonly unsub: () => void;
   private bingPromise: Promise<boolean> | null = null;
+  /** 异步解析图片源的竞态令牌（快速切换背景时丢弃过期结果） */
+  private imageSrcToken = 0;
 
   constructor(layer: HTMLElement) {
     this.layer = layer;
@@ -103,6 +106,28 @@ export class BackgroundManager {
     this.applyOverlay(bg);
   }
 
+  /**
+   * 设置背景 <img> 的 src：IndexedDB 标记需要异步解析成 objectURL，
+   * 用自增令牌防止快速切换时旧请求覆盖新结果。
+   */
+  private applyImageSource(src: string): void {
+    if (!isIdbSource(src)) {
+      this.imageEl.src = src;
+      return;
+    }
+    const token = ++this.imageSrcToken;
+    void resolveImageSource(src).then((resolved) => {
+      if (token !== this.imageSrcToken) return; // 已有更新的背景请求
+      if (resolved === '') {
+        this.imageEl.removeAttribute('src');
+        this.imageEl.hidden = true;
+        return;
+      }
+      this.imageEl.src = resolved;
+      this.imageEl.hidden = false;
+    });
+  }
+
   /** 纯色模式：设置 body 背景色（其余模式清空，由背景层展示媒体） */
   private applyBodyColor(bg: BackgroundSettings): void {
     if (bg.mode === 'color') {
@@ -125,7 +150,7 @@ export class BackgroundManager {
             ? bg.url
             : bg.bingUrl;
       if (src !== '') {
-        this.imageEl.src = src;
+        this.applyImageSource(src);
         this.imageEl.hidden = false;
       } else {
         this.imageEl.removeAttribute('src');

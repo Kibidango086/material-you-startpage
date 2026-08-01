@@ -75,6 +75,11 @@ import { fetchSuggest } from './services/suggest';
 import type { TranslationResult } from './services/translate';
 import { translateText } from './services/translate';
 import { get, initDefaults, set, subscribe } from './storage/store';
+import {
+  dataUrlToBlob,
+  resolveImageSource,
+  saveBackgroundImage,
+} from './services/imageStore';
 import type { SearchEngine, Settings } from './storage/types';
 import { normalizeUrl } from './utils/url';
 
@@ -232,6 +237,23 @@ function watchFavicon(): void {
   }
 }
 
+/**
+ * 迁移旧数据：早期版本把上传的背景图以 base64 存在 localStorage 里，
+ * 大图会撑爆 ~5MB 配额。启动时若发现 data: 开头的旧数据，转存到
+ * IndexedDB 并把标记改写成 idb://background。
+ */
+async function migrateLegacyBackgroundImage(settings: Settings): Promise<void> {
+  const image = settings.background.image;
+  if (!image.startsWith('data:')) return;
+  try {
+    const blob = await dataUrlToBlob(image);
+    const marker = await saveBackgroundImage(blob);
+    set({ background: { mode: 'image', image: marker } });
+  } catch {
+    // 迁移失败（如图片损坏）：保留原值，不影响启动
+  }
+}
+
 /** 从壁纸提取主题色（防抖），开关开启时自动执行 */
 let extractSeedTimer: number | null = null;
 function applyExtractSeedFromWallpaper(settings: Settings): void {
@@ -251,8 +273,10 @@ function applyExtractSeedFromWallpaper(settings: Settings): void {
     extractSeedTimer = null;
     void (async () => {
       try {
+        const resolved = await resolveImageSource(src);
+        if (resolved === '') return;
         const img = new Image();
-        img.src = src;
+        img.src = resolved;
         await img.decode();
         const color = await getColorFromImage(img);
         setColorScheme(color);
@@ -451,6 +475,9 @@ async function bootstrap(): Promise<void> {
   }
 
   initDefaults();
+
+  // 迁移旧版 localStorage base64 背景图 → IndexedDB
+  await migrateLegacyBackgroundImage(get());
 
   // 外观类设置：初始应用 + 订阅实时同步
   const initial = get();

@@ -26,13 +26,18 @@ import { t } from '../i18n';
 import type { SegmentedButtonGroup, Slider, TextField } from 'mdui';
 
 import { get, set, subscribe } from '../storage/store';
+import {
+  deleteBackgroundImage,
+  isIdbSource,
+  resolveImageSource,
+  saveBackgroundImage,
+} from '../services/imageStore';
 import { normalizeUrl } from '../utils/url';
 import type { BackgroundManager, BackgroundMode } from './background';
 
 /** 上传图片大小上限（4MB，localStorage 配额保护） */
-const MAX_UPLOAD_BYTES = 4 * 1024 * 1024;
+const MAX_UPLOAD_BYTES = 50 * 1024 * 1024;
 
-/** 预设色板（Material 3 参考色 + 常用深色，供渲染色板按钮） */
 export const PRESET_COLORS = [
   '#141218',
   '#6750a4',
@@ -189,8 +194,10 @@ export class BackgroundPanel {
       fileInput.value = '';
     });
     uploadClear.addEventListener('click', () => {
-      set({ background: { image: '' } });
-      snackbar({ message: t('bg.removedImage'), autoCloseDelay: 2000 });
+      void deleteBackgroundImage().finally(() => {
+        set({ background: { image: '' } });
+        snackbar({ message: t('bg.removedImage'), autoCloseDelay: 2000 });
+      });
     });
 
     // 图片 URL
@@ -273,18 +280,17 @@ export class BackgroundPanel {
       });
       return;
     }
-    const reader = new FileReader();
-    reader.onload = () => {
-      const result = typeof reader.result === 'string' ? reader.result : '';
-      if (result !== '') {
-        set({ background: { mode: 'image', image: result } });
+    void (async () => {
+      try {
+        // 原图 Blob 直接进 IndexedDB（不压缩、不转 base64），
+        // 设置里只存一个 idb:// 标记，彻底绕开 localStorage 配额。
+        const marker = await saveBackgroundImage(file);
+        set({ background: { mode: 'image', image: marker } });
         snackbar({ message: t('bg.appliedUpload'), autoCloseDelay: 2000 });
+      } catch {
+        snackbar({ message: t('bg.readFailed'), autoCloseDelay: 2500 });
       }
-    };
-    reader.onerror = () => {
-      snackbar({ message: t('bg.readFailed'), autoCloseDelay: 2500 });
-    };
-    reader.readAsDataURL(file);
+    })();
   }
 
   private applyUrl(urlField: TextField): void {
@@ -409,8 +415,19 @@ export class BackgroundPanel {
     );
     if (previewImg === null || uploadPreview === null) return;
     if (image !== '') {
-      previewImg.src = image;
       uploadPreview.hidden = false;
+      if (isIdbSource(image)) {
+        void resolveImageSource(image).then((resolved) => {
+          if (resolved === '') {
+            previewImg.removeAttribute('src');
+            uploadPreview.hidden = true;
+            return;
+          }
+          previewImg.src = resolved;
+        });
+      } else {
+        previewImg.src = image;
+      }
     } else {
       previewImg.removeAttribute('src');
       uploadPreview.hidden = true;

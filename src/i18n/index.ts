@@ -904,6 +904,24 @@ const dict: Dict = {
     en: 'Repository',
     ja: 'リポジトリ',
   },
+  'about.extension': {
+    'zh-CN': '浏览器扩展（替换新标签页）',
+    'zh-TW': '瀏覽器擴充套件（替換新分頁）',
+    en: 'Browser extension (replace new tab)',
+    ja: 'ブラウザ拡張機能（新規タブ置き換え）',
+  },
+  'about.extensionHint': {
+    'zh-CN': '支持 Chrome / Edge / Firefox，新标签页直接打开本页。',
+    'zh-TW': '支援 Chrome / Edge / Firefox，新分頁直接開啟本頁。',
+    en: 'Supports Chrome / Edge / Firefox — opens this page on new tabs.',
+    ja: 'Chrome / Edge / Firefox 対応、新規タブでこのページを開きます。',
+  },
+  'about.extensionDownload': {
+    'zh-CN': '下载',
+    'zh-TW': '下載',
+    en: 'Download',
+    ja: 'ダウンロード',
+  },
   'about.inspiredBy': {
     'zh-CN': '设计灵感来自',
     'zh-TW': '設計靈感來自',

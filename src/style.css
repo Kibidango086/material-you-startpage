@@ -1081,6 +1081,13 @@ a:hover {
   word-break: break-all;
 }
 
+/* 关于面板内的行内提示（如扩展支持范围说明） */
+.about__hint-inline {
+  display: block;
+  font-size: var(--font-note);
+  color: var(--mdui-color-on-surface-variant);
+}
+
 .about__title {
   margin: var(--space-sm) 0 0;
   font-size: var(--mdui-typescale-title-small-size);

@@ -105,11 +105,7 @@ export const DEFAULT_SETTINGS: Settings = {
     mode: 'hitokoto',
     customText: '愿所有美好如期而至。',
     customAuthor: '',
-    aiEndpoint: '',
-    aiKey: '',
-    aiModel: 'gpt-4o-mini',
-    aiPrompt:
-      '你是一位中文诗人。请生成一句富有哲理或诗意、简短（不超过 40 字）的句子，直接输出内容，不要任何解释、引号或多余文字。',
+    customApiUrl: '',
   },
   omnibox: {
     historyEnabled: true,

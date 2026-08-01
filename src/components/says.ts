@@ -27,7 +27,8 @@ import {
   FALLBACK_TEXT,
   fetchHitokoto,
   fetchPoem,
-  generateAiQuote,
+  fetchCustomQuote,
+  type SaysResult,
 } from '../services/hitokoto';
 import { get, subscribe } from '../storage/store';
 import { t } from '../i18n';
@@ -117,10 +118,7 @@ export class Says {
       next.mode !== this.lastSays.mode ||
       next.customText !== this.lastSays.customText ||
       next.customAuthor !== this.lastSays.customAuthor ||
-      next.aiEndpoint !== this.lastSays.aiEndpoint ||
-      next.aiKey !== this.lastSays.aiKey ||
-      next.aiModel !== this.lastSays.aiModel ||
-      next.aiPrompt !== this.lastSays.aiPrompt
+      next.customApiUrl !== this.lastSays.customApiUrl
     );
   }
 
@@ -152,6 +150,15 @@ export class Says {
       return;
     }
 
+    // 自建一言未配置地址：展示引导文案而非报错
+    if (settings.mode === 'customApi' && settings.customApiUrl.trim() === '') {
+      this.text = t('customApi.notConfigured');
+      this.source = '';
+      this.state = 'ok';
+      this.render();
+      return;
+    }
+
     const seq = ++this.requestSeq;
     this.text = t('common.loading');
     this.source = '';
@@ -159,18 +166,14 @@ export class Says {
     this.render();
 
     try {
-      let result;
+      let result: SaysResult;
       if (settings.mode === 'hitokoto') {
         result = await fetchHitokoto();
       } else if (settings.mode === 'poem') {
         result = await fetchPoem();
       } else {
-        result = await generateAiQuote({
-          endpoint: settings.aiEndpoint,
-          apiKey: settings.aiKey,
-          model: settings.aiModel,
-          prompt: settings.aiPrompt,
-        });
+        // 剩余模式即自建一言（mode: customApi）
+        result = await fetchCustomQuote(settings.customApiUrl.trim());
       }
       if (seq !== this.requestSeq) return; // 过期请求丢弃
       this.text = result.text;
@@ -181,8 +184,8 @@ export class Says {
       if (seq !== this.requestSeq) return;
       const message =
         error instanceof Error ? error.message : t('says.fetchFailed');
-      // 未配置 AI key 时不弹错误（已展示引导文案）；其余失败提示一次
-      if (settings.mode !== 'ai' || settings.aiKey.trim() !== '') {
+      // 未配置自建一言 URL 时不弹错误（已展示引导文案）；其余失败提示一次
+      if (settings.mode !== 'customApi' || settings.customApiUrl.trim() !== '') {
         snackbar({ message, autoCloseDelay: 3500 });
       }
       this.text = FALLBACK_TEXT;

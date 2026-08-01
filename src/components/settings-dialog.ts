@@ -168,10 +168,7 @@ export class SettingsDialog {
   private readonly saysModeGroup: SegmentedButtonGroup;
   private readonly saysCustomField: TextField;
   private readonly saysCustomAuthorField: TextField;
-  private readonly saysAiEndpointField: TextField;
-  private readonly saysAiKeyField: TextField;
-  private readonly saysAiModelField: TextField;
-  private readonly saysAiPromptField: TextField;
+  private readonly saysCustomApiUrlField: TextField;
   private readonly saysRefreshBtn: HTMLElement;
 
   constructor(
@@ -291,10 +288,7 @@ export class SettingsDialog {
     this.saysModeGroup = q<SegmentedButtonGroup>('#says-mode-group');
     this.saysCustomField = q<TextField>('#says-custom-field');
     this.saysCustomAuthorField = q<TextField>('#says-custom-author-field');
-    this.saysAiEndpointField = q<TextField>('#says-ai-endpoint');
-    this.saysAiKeyField = q<TextField>('#says-ai-key');
-    this.saysAiModelField = q<TextField>('#says-ai-model');
-    this.saysAiPromptField = q<TextField>('#says-ai-prompt');
+    this.saysCustomApiUrlField = q<TextField>('#says-custom-api-url');
     this.saysRefreshBtn = q<HTMLElement>('#says-refresh-btn');
 
     new BackgroundPanel(q<HTMLElement>('[data-bg-panel-root]'), manager);
@@ -534,10 +528,7 @@ export class SettingsDialog {
     // 文本字段：input 即时提交（含粘贴/自动填充），change 提交时去除首尾空白
     this.wireSaysTextField(this.saysCustomField, 'customText');
     this.wireSaysTextField(this.saysCustomAuthorField, 'customAuthor');
-    this.wireSaysTextField(this.saysAiEndpointField, 'aiEndpoint');
-    this.wireSaysTextField(this.saysAiKeyField, 'aiKey');
-    this.wireSaysTextField(this.saysAiModelField, 'aiModel');
-    this.wireSaysTextField(this.saysAiPromptField, 'aiPrompt');
+    this.wireSaysTextField(this.saysCustomApiUrlField, 'customApiUrl');
 
     // 自定义文本为 textarea：Enter 提交（不插入换行），与「立即刷新」行为一致
     this.saysCustomField.addEventListener('keydown', (event) => {
@@ -938,17 +929,8 @@ export class SettingsDialog {
     if (this.saysCustomAuthorField.value !== settings.says.customAuthor) {
       this.saysCustomAuthorField.value = settings.says.customAuthor;
     }
-    if (this.saysAiEndpointField.value !== settings.says.aiEndpoint) {
-      this.saysAiEndpointField.value = settings.says.aiEndpoint;
-    }
-    if (this.saysAiKeyField.value !== settings.says.aiKey) {
-      this.saysAiKeyField.value = settings.says.aiKey;
-    }
-    if (this.saysAiModelField.value !== settings.says.aiModel) {
-      this.saysAiModelField.value = settings.says.aiModel;
-    }
-    if (this.saysAiPromptField.value !== settings.says.aiPrompt) {
-      this.saysAiPromptField.value = settings.says.aiPrompt;
+    if (this.saysCustomApiUrlField.value !== settings.says.customApiUrl) {
+      this.saysCustomApiUrlField.value = settings.says.customApiUrl;
     }
     this.syncSaysPanes();
   }
@@ -964,7 +946,7 @@ export class SettingsDialog {
   /** 一言文本字段：input 即时提交（原样），change / Enter 提交时去除首尾空白 */
   private wireSaysTextField(
     field: TextField,
-    key: 'customText' | 'customAuthor' | 'aiEndpoint' | 'aiKey' | 'aiModel' | 'aiPrompt',
+    key: 'customText' | 'customAuthor' | 'customApiUrl',
   ): void {
     field.addEventListener('input', () => {
       this.commitSaysField(field, key, false);
@@ -977,7 +959,7 @@ export class SettingsDialog {
   /** 提交一言文本字段到 store */
   private commitSaysField(
     field: TextField,
-    key: 'customText' | 'customAuthor' | 'aiEndpoint' | 'aiKey' | 'aiModel' | 'aiPrompt',
+    key: 'customText' | 'customAuthor' | 'customApiUrl',
     trim = true,
   ): void {
     const value = trim ? field.value.trim() : field.value;
@@ -1545,7 +1527,7 @@ function template(): string {
             <mdui-segmented-button value="hitokoto">${t('saysTab.random')}</mdui-segmented-button>
             <mdui-segmented-button value="poem">${t('saysTab.poem')}</mdui-segmented-button>
             <mdui-segmented-button value="custom">${t('saysTab.custom')}</mdui-segmented-button>
-            <mdui-segmented-button value="ai">${t('saysTab.ai')}</mdui-segmented-button>
+            <mdui-segmented-button value="customApi">${t('saysTab.customApi')}</mdui-segmented-button>
           </mdui-segmented-button-group>
         </div>
 
@@ -1568,35 +1550,19 @@ function template(): string {
           </div>
         </div>
 
-        <div class="says-pane" data-says-pane="ai">
+        <div class="says-pane" data-says-pane="customApi">
           <div class="settings-section__block">
-            <h3 class="settings-section__title">${t('saysTab.aiConfig')}</h3>
+            <h3 class="settings-section__title">${t('saysTab.customApiConfig')}</h3>
             <div class="settings-fields">
               <mdui-text-field
-                id="says-ai-endpoint"
-                label="${t('saysTab.aiEndpointLabel')}"
-                placeholder="https://api.openai.com/v1/chat/completions"
-                type="url"
-              ></mdui-text-field>
-              <mdui-text-field
-                id="says-ai-key"
-                label="API Key"
-                type="password"
-                placeholder="sk-…"
-              ></mdui-text-field>
-              <mdui-text-field
-                id="says-ai-model"
-                label="${t('saysTab.aiModelLabel')}"
-                placeholder="gpt-4o-mini"
-              ></mdui-text-field>
-              <mdui-text-field
-                id="says-ai-prompt"
-                label="${t('saysTab.aiPromptLabel')}"
-                textarea
+                id="says-custom-api-url"
+                label="${t('saysTab.customApiUrlLabel')}"
+                placeholder="https://example.com/api/quote"
+                clearable
               ></mdui-text-field>
             </div>
             <p class="settings-section__hint">
-              ${t('saysTab.aiHint2')}
+              ${t('saysTab.customApiHint')}
             </p>
           </div>
         </div>

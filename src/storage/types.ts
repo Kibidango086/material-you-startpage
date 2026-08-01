@@ -115,20 +115,14 @@ export interface LinksSettings {
 
 /** 一言 / 诗词设置（S6 使用） */
 export interface SaysSettings {
-  /** 模式：一言 / 今日诗词 / 自定义文本 / AI 生成 */
-  mode: 'hitokoto' | 'poem' | 'custom' | 'ai';
+  /** 模式：一言 / 今日诗词 / 自定义文本 / 自建一言 */
+  mode: 'hitokoto' | 'poem' | 'custom' | 'customApi';
   /** 自定义文本 */
   customText: string;
   /** 自定义文本署名（出处） */
   customAuthor: string;
-  /** AI 生成：OpenAI 兼容 endpoint */
-  aiEndpoint: string;
-  /** AI 生成：API Key（纯前端使用，用户自填） */
-  aiKey: string;
-  /** AI 生成：模型名 */
-  aiModel: string;
-  /** AI 生成：System prompt（S6 设置面板可编辑） */
-  aiPrompt: string;
+  /** 自建一言：自定义 API URL（返回与一言相同格式 {hitokoto, from, from_who}） */
+  customApiUrl: string;
 }
 
 /** Omnibox 全能搜索框设置（S3 使用） */

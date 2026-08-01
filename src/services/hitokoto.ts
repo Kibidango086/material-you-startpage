@@ -20,12 +20,37 @@
  * 全部函数返回结构统一的 SaysResult { text, source }，供 says 组件渲染。
  */
 
-import { t } from '../i18n';
-
 /** 一言结果（text 为正文，source 为可选出处/作者） */
 export interface SaysResult {
   text: string;
   source?: string;
+}
+
+/** 自建一言：请求用户自定义 API，解析与一言相同格式（{hitokoto, from, from_who}） */
+export async function fetchCustomQuote(
+  url: string,
+  timeoutMs = 8000,
+): Promise<SaysResult> {
+  const response = await fetchWithTimeout(
+    `${url}${url.includes('?') ? '&' : '?'}_=${Date.now()}`,
+    {
+      headers: { Accept: 'application/json' },
+      cache: 'no-store',
+    },
+    timeoutMs,
+  );
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status}`);
+  }
+  const data: unknown = await response.json();
+  const text = pickText(data);
+  if (text === null) {
+    throw new Error('响应缺少一言内容（需返回 { hitokoto, from, from_who } 格式）');
+  }
+  const from = pickText((data as Record<string, unknown>).from);
+  const who = pickText((data as Record<string, unknown>).from_who);
+  const source = [from, who].filter((part) => part !== '').join(' · ');
+  return { text, source: source !== '' ? source : undefined };
 }
 
 /** 获取失败时使用的兜底文案 */
@@ -149,93 +174,3 @@ function pickOrigin(data: unknown): string | undefined {
   return parts.length > 0 ? parts.join(' · ') : undefined;
 }
 
-/** AI 生成选项 */
-export interface AiQuoteOptions {
-  endpoint: string;
-  apiKey: string;
-  model: string;
-  prompt: string;
-  timeoutMs?: number;
-}
-
-/**
- * AI 生成一言（OpenAI 兼容 chat/completions）。
- * 未配置 key / endpoint 时返回 { text: 引导提示 }（不抛错）；
- * 接口调用失败（网络 / 非 2xx）时抛出 Error，由调用方提示。
- */
-export async function generateAiQuote(
-  options: AiQuoteOptions,
-): Promise<SaysResult> {
-  const endpoint = options.endpoint.trim();
-  const apiKey = options.apiKey.trim();
-
-  if (apiKey === '') {
-    return {
-      text: t('ai.notConfigured'),
-      source: undefined,
-    };
-  }
-  if (endpoint === '') {
-    return {
-      text: t('ai.notConfiguredEndpoint'),
-      source: undefined,
-    };
-  }
-
-  const model = options.model.trim() !== '' ? options.model.trim() : 'gpt-4o-mini';
-  const prompt =
-    options.prompt.trim() !== ''
-      ? options.prompt.trim()
-      : '请生成一句富有哲理的中文短句，不超过 40 字，直接输出。';
-
-  const response = await fetchWithTimeout(
-    endpoint,
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model,
-        messages: [
-          { role: 'system', content: prompt },
-          { role: 'user', content: '请生成一句今日一言。' },
-        ],
-        max_tokens: 120,
-        temperature: 0.9,
-      }),
-    },
-    options.timeoutMs ?? 15000,
-  );
-
-  if (!response.ok) {
-    const detail = await response.text().catch(() => '');
-    throw new Error(
-      `AI 接口返回 HTTP ${response.status}${detail !== '' ? `：${detail.slice(0, 120)}` : ''}`,
-    );
-  }
-
-  const data: unknown = await response.json();
-  const text = extractChatContent(data);
-  if (text === null) {
-    throw new Error('AI 接口响应缺少生成内容（choices[0].message.content）');
-  }
-  return { text };
-}
-
-/** 从 OpenAI 兼容 chat/completions 响应中提取 choices[0].message.content */
-export function extractChatContent(data: unknown): string | null {
-  if (typeof data !== 'object' || data === null) return null;
-  const record = data as Record<string, unknown>;
-  const choices = record.choices;
-  if (!Array.isArray(choices) || choices.length === 0) return null;
-  const first = choices[0];
-  if (typeof first !== 'object' || first === null) return null;
-  const message = (first as Record<string, unknown>).message;
-  if (typeof message !== 'object' || message === null) return null;
-  const content = (message as Record<string, unknown>).content;
-  if (typeof content !== 'string') return null;
-  const trimmed = content.trim();
-  return trimmed !== '' ? trimmed : null;
-}

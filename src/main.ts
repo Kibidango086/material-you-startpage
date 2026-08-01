@@ -65,12 +65,7 @@ import {
   buildSearchUrl,
   createCustomEngine,
 } from './services/searchEngines';
-import {
-  extractChatContent,
-  fetchHitokoto,
-  fetchPoem,
-  generateAiQuote,
-} from './services/hitokoto';
+import { fetchHitokoto, fetchPoem } from './services/hitokoto';
 import { fetchSuggest } from './services/suggest';
 import type { TranslationResult } from './services/translate';
 import { translateText } from './services/translate';
@@ -131,10 +126,6 @@ declare global {
           text: string;
           source?: string;
         }>;
-        generateAiQuote: (
-          options: Parameters<typeof generateAiQuote>[0],
-        ) => Promise<{ text: string; source?: string }>;
-        extractChatContent: (data: unknown) => string | null;
       };
     };
   }
@@ -570,8 +561,6 @@ async function bootstrap(): Promise<void> {
       verifyImageLoadable,
       fetchHitokoto,
       fetchPoem,
-      generateAiQuote,
-      extractChatContent,
     },
   };
 }

@@ -1,6 +1,40 @@
-# My Startpage
+<p align="center">
+  <a href="https://mystartup.kibidango.top/">
+    <img src="./public/logo.svg" width="96" height="96" alt="My Startpage logo" />
+  </a>
+</p>
 
-个人自用 Material You 风格起始页，by Kibidango086。设计灵感来自 [QUIK 2](https://github.com/quik-page/quik2)（GPL-3.0），代码为 TypeScript + mdui v2 从零实现。
+<h1 align="center">My Startpage</h1>
+
+<p align="center">
+  <em>个人自用 Material You 风格起始页 · 纯前端 · 无后端</em>
+</p>
+
+<p align="center">
+  <a href="https://mystartup.kibidango.top/">
+    <img src="https://img.shields.io/badge/Demo-mystartup.kibidango.top-6750A4?style=for-the-badge&logo=data:image/svg%2Bxml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48Y2lyY2xlIGN4PSI2NiIgY3k9IjMyIiByPSI5IiBmaWxsPSIlMjNmZmYiLz48cGF0aCBkPSJNMTIgNzggUTI4IDQwIDUwIDYwIFE2MiA3MCA3NiA1NCBRODQgNDYgODggNTYgTDg4IDc4IFoiIGZpbGw9IiUyM2ZmZiIgb3BhY2l0eT0iMC45Ii8+PHBhdGggZD0iTTMwIDc4IFE0NCA1NCA1OCA2NiBRNjQgNzAgNzQgNzggWiIgZmlsbD0iJTIzZmZmIiBvcGFjaXR5PSIwLjg1Ii8+PC9zdmc+" alt="Demo" />
+  </a>
+  <a href="https://github.com/Kibidango086/material-you-startpage">
+    <img src="https://img.shields.io/badge/GitHub-Kibidango086%2Fmaterial--you--startpage-181717?style=for-the-badge&logo=github&logoColor=white" alt="GitHub" />
+  </a>
+  <a href="https://github.com/Kibidango086/material-you-startpage/blob/main/LICENSE">
+    <img src="https://img.shields.io/badge/License-GPL--3.0-A42E2B?style=for-the-badge&logo=gnu&logoColor=white" alt="License" />
+  </a>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/mdui%20v2-7B1FA2?style=for-the-badge" alt="mdui v2" />
+  <img src="https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" />
+  <img src="https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white" alt="Vite" />
+  <img src="https://img.shields.io/badge/Bun-14151A?style=for-the-badge&logo=bun&logoColor=white" alt="Bun" />
+  <img src="https://img.shields.io/badge/100%25%20Frontend-2E7D32?style=for-the-badge" alt="100% Frontend" />
+</p>
+
+个人自用 Material You 风格起始页。设计灵感来自 [QUIK 2](https://github.com/quik-page/quik2)（GPL-3.0），代码为 TypeScript + mdui v2 从零实现。
+
+## 在线体验
+
+👉 **[mystartup.kibidango.top](https://mystartup.kibidango.top/)**
 
 ## 功能
 

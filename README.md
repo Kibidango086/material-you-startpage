@@ -36,6 +36,14 @@
 
 👉 **[mystartup.kibidango.top](https://mystartup.kibidango.top/)**
 
+## 浏览器扩展
+
+新标签页直接打开本页（Chrome / Edge / Firefox）：
+
+- **[下载扩展（latest）](https://github.com/Kibidango086/material-you-startpage/releases/latest)**
+- Firefox 用 `*.xpi`（已签名），Chrome/Edge 用 `*-chrome.zip` 解压后加载
+- 源码在 `extension` 分支，设置面板「关于」页也有下载入口
+
 ## 功能
 
 - 搜索：多引擎（必应/百度/Google/搜狗/哔哩哔哩/维基百科 + 自定义），输入 URL 直达，`=` 即算，翻译建议（支持 `:ja` / `en:zh` 前缀语法与自定义目标语言），跟随引擎的联想建议

@@ -1620,7 +1620,7 @@ function template(): string {
         </p>
         <p class="about__link">
           ${t('about.extension')}
-          <a href="https://github.com/Kibidango086/material-you-startpage/releases/tag/extension-v1.0.0" target="_blank" rel="noopener noreferrer">${t('about.extensionDownload')}</a>
+          <a href="https://github.com/Kibidango086/material-you-startpage/releases/latest" target="_blank" rel="noopener noreferrer">${t('about.extensionDownload')}</a>
           <span class="about__hint-inline">${t('about.extensionHint')}</span>
         </p>
         <p class="about__link">

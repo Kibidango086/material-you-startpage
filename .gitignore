@@ -1,0 +1,15 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Alma tooling
+.alma-snapshots/
+outputs/
+tmp/
+work/
+
+# Editor / OS
+.DS_Store
+*.local

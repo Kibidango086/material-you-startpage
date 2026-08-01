@@ -68,17 +68,5 @@ jobs:
             - **Chrome / Edge**：下载 `*-chrome.zip` → 解压 → `chrome://extensions` 开启开发者模式 → 「加载已解压的扩展程序」。
             - **Firefox**：下载 `*.xpi`（Mozilla 签名版）→ 直接用 Firefox 打开安装。
               - 若暂无签名版，可下载 `*-firefox.zip` → `about:debugging#/runtime/this-firefox` → 「临时载入附加组件」。
-          allowUpdates: true
-          replacesArtifacts: true
+          overwrite_files: true
 
-      # 可选：配置商店密钥后自动上架 Chrome Web Store / Firefox AMO
-      - name: Submit to stores (optional)
-        if: env.CWS_CLIENT_ID != '' || env.AMO_JWT_ISSUER != ''
-        working-directory: .
-        env:
-          CWS_CLIENT_ID: ${{ secrets.CWS_CLIENT_ID }}
-          CWS_CLIENT_SECRET: ${{ secrets.CWS_CLIENT_SECRET }}
-          CWS_REFRESH_TOKEN: ${{ secrets.CWS_REFRESH_TOKEN }}
-          AMO_JWT_ISSUER: ${{ secrets.AMO_JWT_ISSUER }}
-          AMO_JWT_SECRET: ${{ secrets.AMO_JWT_SECRET }}
-        run: bun run wxt submit

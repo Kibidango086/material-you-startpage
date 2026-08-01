@@ -8,6 +8,13 @@ export default defineConfig({
     version: '1.0.0',
     // 仅覆盖新标签页，无需任何额外权限
     permissions: [],
+    // 扩展图标（与网站 logo 一致的山+太阳，主题色系）
+    icons: {
+      16: '/icons/icon-16.png',
+      32: '/icons/icon-32.png',
+      48: '/icons/icon-48.png',
+      128: '/icons/icon-128.png',
+    },
     // Firefox 签名必需：扩展 ID（Chrome 构建自动忽略该字段）
     ...(browser === 'firefox'
       ? {
